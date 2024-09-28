@@ -1,36 +1,11 @@
 import cv2
 import tkinter as tk
-from tkinter import filedialog, messagebox, Label, Button
+from tkinter import filedialog, messagebox, Label, Button, Frame
 
-# Function to detect cars in the selected video
-def detect_cars(video_path):
-    car_cascade = cv2.CascadeClassifier('D:\\New folder\\Car_Detection_System\\vehicle\\cars.xml')
-    cap = cv2.VideoCapture(video_path)
-
-    while True:
-        ret, frames = cap.read()
-
-        if not ret or frames is None:
-            print("Video has ended or failed to capture image")
-            break
-
-        gray = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
-        cars = car_cascade.detectMultiScale(gray, 1.1, 9)
-
-        for (x, y, w, h) in cars:
-            cv2.rectangle(frames, (x, y), (x + w, y + h), (51, 51, 255), 2)
-            cv2.rectangle(frames, (x, y - 40), (x + w, y), (51, 51, 255), -2)
-            cv2.putText(frames, 'Car', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-        frames = cv2.resize(frames, (600, 400))
-        cv2.imshow('Car Detection System', frames)
-
-        k = cv2.waitKey(30) & 0xff
-        if k == 27:  # Esc key to stop
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
+# Function to detect cars in the selected video or webcam stream
+def detect_cars(video_path=None, use_webcam=False):
+    # Placeholder for car detection logic
+    pass  # Implement your detection logic here
 
 # Function to handle file upload and car detection
 def upload_and_detect():
@@ -38,59 +13,94 @@ def upload_and_detect():
         title="Select Video File",
         filetypes=(("MP4 files", "*.mp4"), ("AVI files", "*.avi"), ("All files", "*.*"))
     )
-    
     if video_path:
-        detect_cars(video_path)
+        detect_cars(video_path=video_path)
     else:
         messagebox.showwarning("Warning", "No file selected!")
 
-# Function to toggle full-screen mode
-def toggle_fullscreen(event=None):
-    state = not root.attributes('-fullscreen')
-    root.attributes('-fullscreen', state)
-    if state:
-        center_widgets()
-    else:
-        reset_layout()
-
-# Function to center widgets in full-screen mode
-def center_widgets():
-    lbl.pack_forget()  # Remove default layout
-    btn_upload.pack_forget()  # Remove default layout
-    btn_exit.pack_forget()  # Remove default layout
-
-    lbl.place(relx=0.5, rely=0.45, anchor='center')  # Adjusted lower
-    btn_upload.place(relx=0.5, rely=0.55, anchor='center')  # Adjusted lower
-    btn_exit.place(relx=0.5, rely=0.65, anchor='center')  # Adjusted lower
-
-# Function to reset the layout when exiting full-screen mode
-def reset_layout():
-    lbl.place_forget()  # Remove custom layout
-    btn_upload.place_forget()  # Remove custom layout
-    btn_exit.place_forget()  # Remove custom layout
-
-    lbl.pack(pady=10)
-    btn_upload.pack(pady=10)
-    btn_exit.pack(pady=10)
+# Function to handle live webcam detection
+def webcam_and_detect():
+    detect_cars(use_webcam=True)
 
 # Main window setup
 root = tk.Tk()
 root.title("Car Detection System")
-root.geometry("300x150")
-root.configure(bg="#2c3e50")
 
-# Bind the F11 key to toggle full-screen mode
-root.bind('<F11>', toggle_fullscreen)
+# Set window size and styling
+window_width = 800
+window_height = 600
+root.geometry(f"{window_width}x{window_height}")
+root.configure(bg="#34495e")  # Dark theme
 
-# GUI components
-lbl = Label(root, text="Upload a video to detect cars", fg="white", bg="#2c3e50", font=("Helvetica", 14))
-lbl.pack(pady=10)
+# Define custom font
+font_style = ("Arial", 14)
 
-btn_upload = Button(root, text="Upload Video", command=upload_and_detect, fg="white", bg="#3498db", font=("Helvetica", 12))
-btn_upload.pack(pady=10)
+# Create a header label
+header = Label(
+    root,
+    text="Car Detection System",
+    fg="#ecf0f1",  # Light color for contrast
+    bg="#34495e",
+    font=("Arial", 24, "bold"),
+)
+header.pack(pady=20)
 
-btn_exit = Button(root, text="Exit", command=root.quit, fg="white", bg="#e74c3c", font=("Helvetica", 12))
-btn_exit.pack(pady=10)
+# Create a frame to hold the buttons
+button_frame = Frame(root, bg="#34495e")
+button_frame.pack(pady=40)
+
+# Create buttons with styling
+btn_upload = Button(
+    button_frame,
+    text="Upload Video",
+    command=upload_and_detect,
+    fg="white",
+    bg="#2980b9",
+    font=font_style,
+    width=15,
+    height=2,
+    relief="raised",
+    bd=3,
+)
+btn_upload.pack(padx=10, pady=5)
+
+btn_webcam = Button(
+    button_frame,
+    text="Use Webcam",
+    command=webcam_and_detect,
+    fg="white",
+    bg="#27ae60",
+    font=font_style,
+    width=15,
+    height=2,
+    relief="raised",
+    bd=3,
+)
+btn_webcam.pack(padx=10, pady=5)
+
+btn_exit = Button(
+    button_frame,
+    text="Exit",
+    command=root.quit,
+    fg="white",
+    bg="#c0392b",
+    font=font_style,
+    width=10,
+    height=2,
+    relief="raised",
+    bd=3,
+)
+btn_exit.pack(padx=10, pady=5)
+
+# Create a label with styling
+lbl = Label(
+    root,
+    text="Choose input method for car detection",
+    fg="#ecf0f1",
+    bg="#34495e",
+    font=font_style,
+)
+lbl.pack(pady=20)
 
 # Run the GUI loop
 root.mainloop()
